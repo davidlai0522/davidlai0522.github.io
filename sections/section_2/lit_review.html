@@ -1,0 +1,114 @@
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 2 — Literature Review
+     To add a paper: copy one <article class="card paper-card"> block.
+     To add a repo:  copy one <li> block in the repos-list.
+═══════════════════════════════════════════════════════════ -->
+
+<h1 class="section-title">Literature Review</h1>
+<p class="section-desc">Paper notes, key takeaways, and useful repositories.</p>
+
+<!-- ════════════════════════════════════════════════════════════
+     PAPERS
+════════════════════════════════════════════════════════════ -->
+<div class="papers-grid">
+
+  <!-- ── PAPER CARD ── copy this whole block to add a paper ── -->
+  <article class="card paper-card">
+    <h3 class="card-title">RT-2: Vision-Language-Action Models Transfer Web Knowledge to Robotic Control</h3>
+    <div class="paper-meta">
+      <span class="authors">Brohan, A. et al. (Google DeepMind, 2023)</span>
+      <a href="https://arxiv.org/abs/2307.15818" target="_blank" class="paper-link">
+        📄 arXiv
+      </a>
+    </div>
+    <div class="paper-notes">
+      <div class="paper-notes-label">My Notes</div>
+      <p>
+        RT-2 co-fine-tunes a large vision-language model (VLM) on robotics data so that the model's
+        web-scale semantic understanding can be leveraged for manipulation. Key insight: representing
+        robot actions as text tokens lets the model generalize to novel tasks zero-shot. Highly relevant
+        to integrating language-conditioned control for patient-transfer tasks.
+      </p>
+    </div>
+  </article>
+  <!-- ── END PAPER CARD ──────────────────────────────────────── -->
+
+  <!-- ── PAPER CARD ── copy this whole block to add a paper ── -->
+  <article class="card paper-card">
+    <h3 class="card-title">4D-Humans: Reconstructing and Tracking Humans with Transformers</h3>
+    <div class="paper-meta">
+      <span class="authors">Goel, S. et al. (UC Berkeley, 2023)</span>
+      <a href="https://arxiv.org/abs/2305.20091" target="_blank" class="paper-link">
+        📄 arXiv
+      </a>
+    </div>
+    <div class="paper-notes">
+      <div class="paper-notes-label">My Notes</div>
+      <p>
+        Proposes a transformer-based approach for Human Mesh Recovery (HMR) that works across video
+        sequences (4D = 3D + time). Strong temporal consistency without per-video optimization.
+        Directly applicable to estimating patient body pose in real-time for safe robot-patient contact planning.
+      </p>
+    </div>
+  </article>
+  <!-- ── END PAPER CARD ──────────────────────────────────────── -->
+
+  <!-- ADD PAPER CARD HERE — copy one <article class="card paper-card"> block above -->
+
+</div><!-- /.papers-grid -->
+
+
+<!-- ════════════════════════════════════════════════════════════
+     USEFUL REPOSITORIES
+════════════════════════════════════════════════════════════ -->
+<h2 class="subsection-label">📦 Useful Repositories</h2>
+
+<ul class="repos-list">
+
+  <!-- ── REPO ITEM ── copy this <li> to add a repo ─────────── -->
+  <li>
+    <a href="https://github.com/davidlai/human_digital_twin" target="_blank" class="repo-item">
+      <span class="repo-icon">🧑‍💻</span>
+      <div>
+        <div class="repo-name">human_digital_twin</div>
+        <div class="repo-desc">Digital twin simulations and human mesh data pipeline for robotics research.</div>
+      </div>
+    </a>
+  </li>
+  <!-- ── END REPO ITEM ──────────────────────────────────────── -->
+
+  <!-- ── REPO ITEM ── copy this <li> to add a repo ─────────── -->
+  <li>
+    <a href="https://github.com/ros-planning/moveit2" target="_blank" class="repo-item">
+      <span class="repo-icon">🦾</span>
+      <div>
+        <div class="repo-name">MoveIt2</div>
+        <div class="repo-desc">The ROS2 motion planning framework — core tool for manipulation tasks in my research.</div>
+      </div>
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/google-deepmind/mujoco" target="_blank" class="repo-item">
+      <span class="repo-icon">🔬</span>
+      <div>
+        <div class="repo-name">MuJoCo</div>
+        <div class="repo-desc">Physics simulation engine for RL training and sim-to-real transfer experiments.</div>
+      </div>
+    </a>
+  </li>
+
+  <li>
+    <a href="https://github.com/shubham-goel/4D-Humans" target="_blank" class="repo-item">
+      <span class="repo-icon">🦴</span>
+      <div>
+        <div class="repo-name">4D-Humans</div>
+        <div class="repo-desc">Transformer-based Human Mesh Recovery over video sequences.</div>
+      </div>
+    </a>
+  </li>
+  <!-- ── END REPO ITEM ──────────────────────────────────────── -->
+
+  <!-- ADD REPO HERE — copy one <li> block above -->
+
+</ul>

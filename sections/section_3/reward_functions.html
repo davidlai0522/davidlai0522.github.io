@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RL Reward Design Explorer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
+
+    <!-- Chosen Palette: Warm Neutrals & Slate with Amber/Sky Accents -->
+    <!-- Application Structure Plan: A dynamic dashboard structure was chosen to transform the reference cheat sheet into an exploratory learning tool. The left sidebar (or top scroll on mobile) provides categorical navigation (Target, Bounds, Actions, Speed) matching the report's structure. The main content area dynamically updates to show contextual explanations, mathematical formulas (rendered via KaTeX), and interactive Chart.js visualizations that plot the actual reward gradients. This structure allows users to visually compare the mathematical shapes of different reward strategies (e.g., Gaussian vs L2) within specific contexts, significantly enhancing comprehension over reading static text. -->
+    <!-- Visualization & Content Choices: Target/Bounds/Actions Data -> Goal: Compare Gradient Shapes -> Viz: Multi-line Chart.js (Canvas) -> Interaction: Hover tooltips, tab switching -> Justification: RL agents learn via gradients; visualizing the formula shapes is critical for understanding their impact on agent behavior. No SVG/Mermaid used. Layout utilizes Tailwind Flex/Grid for responsive structural organization. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        body {
+            background-color: #faf9f6;
+            color: #334155;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 45vh;
+            max-height: 450px;
+            min-height: 300px;
+        }
+
+        .nav-btn.active {
+            background-color: #0ea5e9;
+            color: white;
+            font-weight: 600;
+        }
+
+        .nav-btn {
+            background-color: #f1f5f9;
+            color: #475569;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover:not(.active) {
+            background-color: #e2e8f0;
+        }
+
+        .formula-box {
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen font-sans antialiased flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-64 bg-white shadow-md border-r border-slate-200 flex-shrink-0 z-10 md:min-h-screen">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-slate-800 tracking-tight leading-tight">RL Reward<br><span
+                    class="text-sky-600">Explorer</span></h1>
+            <p class="text-sm text-slate-500 mt-2">Interactive cheatsheet for shaping reinforcement learning gradients.
+            </p>
+        </div>
+        <nav class="flex md:flex-col px-4 pb-4 md:px-6 gap-2 overflow-x-auto" id="navigation">
+        </nav>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-6xl mx-auto w-full">
+
+        <header class="mb-8 bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h2 id="section-title" class="text-3xl font-bold text-slate-800 mb-2"></h2>
+            <p id="section-intro" class="text-lg text-slate-600"></p>
+        </header>
+
+        <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 mb-8" id="visualization-section">
+            <h3 class="text-xl font-semibold mb-4 text-slate-700">Gradient Shape Visualization</h3>
+            <p class="text-sm text-slate-500 mb-6" id="chart-context">Visual comparison of reward functions relative to
+                state/action inputs.</p>
+            <div class="chart-container">
+                <canvas id="rewardChart"></canvas>
+            </div>
+        </section>
+
+        <section id="cards-container" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        </section>
+
+    </main>
+
+    <script>
+        const contentData = {
+            target: {
+                id: 'target',
+                title: "1. Approaching a Target",
+                intro: "Use when you want the agent to reach an exact continuous value (Position, Velocity, etc.). The shape of the function determines how aggressively the agent is pulled toward the goal.",
+                chartContext: "Plotting reward value (Y) against distance from the target (X=0). Notice how L2 heavily penalizes distant states, while Gaussian remains bounded.",
+                cards: [
+                    { name: "Gaussian / Exponential", formula: "R = e^{-\\frac{(x - x_{target})^2}{\\sigma^2}}", characteristics: "Gold Standard. Bounded between 0 and 1. Smooth gradient that flattens out far away and peaks exactly at the target. Tune σ to widen or narrow the reward zone.", warning: "" },
+                    { name: "Squared Error (L2)", formula: "R = -(x - x_{target})^2", characteristics: "Aggressive Penalty. Heavily penalizes being far away, but very forgiving near the target.", warning: "Can cause massive negative gradients if the agent starts far away, destabilizing training." },
+                    { name: "Absolute Error (L1)", formula: "R = -|x - x_{target}|", characteristics: "Constant Pull. Provides a constant gradient toward the target regardless of distance.", warning: "Forms a sharp 'V' at the target, which can cause the agent to jitter or oscillate around the exact value." }
+                ],
+                chartConfig: {
+                    xLabel: "Distance from Target (x - x_target)",
+                    xMin: -5, xMax: 5,
+                    datasets: [
+                        { label: 'Gaussian (σ=2)', fn: (x) => Math.exp(-Math.pow(x, 2) / 4), color: '#0ea5e9' },
+                        { label: 'L2 Squared', fn: (x) => -Math.pow(x, 2), color: '#ef4444' },
+                        { label: 'L1 Absolute', fn: (x) => -Math.abs(x), color: '#f59e0b' }
+                    ]
+                }
+            },
+            bounds: {
+                id: 'bounds',
+                title: "2. Safety Bounds & Tolerances",
+                intro: "Use when the exact value doesn't matter, as long as it stays within specific boundaries [a, b].",
+                chartContext: "Plotting reward (Y) against state value (X) with safety bounds set at [-2, 2]. Soft bounds provide a warning gradient before the boundary is crossed.",
+                cards: [
+                    { name: "Strict Tolerance", formula: "R = \\begin{cases} 0 & \\text{if } x \\in [a,b] \\\\ -1 & \\text{otherwise} \\end{cases}", characteristics: "Standard Safety. No penalty inside the zone; immediate flat penalty outside. Good for strict failure conditions.", warning: "" },
+                    { name: "Soft Boundaries", formula: "R = -\\text{sigmoid}(x - b) - \\text{sigmoid}(a - x)", characteristics: "Warning Zone. Creates a smooth 'bowl' that gently pushes the agent back as it approaches the boundaries.", warning: "" }
+                ],
+                chartConfig: {
+                    xLabel: "State Value (x) [Bounds: -2 to 2]",
+                    xMin: -5, xMax: 5,
+                    datasets: [
+                        { label: 'Strict Tolerance', fn: (x) => (x >= -2 && x <= 2) ? 0 : -1, color: '#0ea5e9' },
+                        { label: 'Soft Boundaries', fn: (x) => - (1 / (1 + Math.exp(-2 * (x - 2)))) - (1 / (1 + Math.exp(-2 * (-2 - x)))), color: '#f59e0b' }
+                    ]
+                }
+            },
+            actions: {
+                id: 'actions',
+                title: "3. Penalizing Actions & Forces",
+                intro: "Use to encourage efficiency, reduce wear-and-tear, or stop erratic movements by the agent.",
+                chartContext: "Plotting penalty applied (Y) against the magnitude of the action/force taken (X).",
+                cards: [
+                    { name: "Energy Efficiency (L2)", formula: "R = -c \\cdot a^2", characteristics: "Prevents Maxing Out. Penalizes large forces heavily but forgives tiny, necessary adjustments. Good for motors and actuators.", warning: "" },
+                    { name: "Action Sparsity (L1)", formula: "R = -c \\cdot |a|", characteristics: "Encourages Inaction. Forces the agent to literally do nothing (a=0) unless absolutely necessary.", warning: "" },
+                    { name: "Smoothness / Anti-Jitter", formula: "R = -c \\cdot (a_t - a_{t-1})^2", characteristics: "Prevents Erratic Behavior. Penalizes the change in action between timesteps. Ensures smooth transitions.", warning: "" }
+                ],
+                chartConfig: {
+                    xLabel: "Action Magnitude (a)",
+                    xMin: -5, xMax: 5,
+                    datasets: [
+                        { label: 'Energy (L2, c=0.1)', fn: (x) => -0.1 * Math.pow(x, 2), color: '#ef4444' },
+                        { label: 'Sparsity (L1, c=0.5)', fn: (x) => -0.5 * Math.abs(x), color: '#10b981' }
+                    ]
+                }
+            },
+            speed: {
+                id: 'speed',
+                title: "4. Speed & Time Optimization",
+                intro: "Use when you want the agent to complete a task as quickly as possible.",
+                chartContext: "Plotting cumulative reward over time (steps).",
+                cards: [
+                    { name: "Constant Step Penalty", formula: "R = -c", characteristics: "Creates Urgency. The agent tries to reach the terminal 'Goal' quickly to stop accumulating negative rewards.", warning: "If the goal is too hard, the agent may learn to deliberately crash or fail immediately to end the episode. Ensure the final goal reward outweighs the accumulated step penalties." }
+                ],
+                chartConfig: {
+                    xLabel: "Time Steps",
+                    xMin: 0, xMax: 100,
+                    datasets: [
+                        { label: 'Cumulative Step Penalty (c=-0.05)', fn: (x) => -0.05 * x, color: '#8b5cf6' }
+                    ]
+                }
+            },
+            multi: {
+                id: 'multi',
+                title: "5. Multi-Objective & Shaping",
+                intro: "Real-world tasks require balancing competing goals, such as reaching a target quickly while minimizing energy use. This is usually done using a weighted sum of individual reward functions.",
+                chartContext: "Plotting a Target Reward (green), an Action Penalty (red), and their Combined Sum (blue). Notice how adding the penalty slightly lowers and narrows the optimal combined reward peak.",
+                cards: [
+                    { name: "Weighted Sum", formula: "R_{total} = w_1 R_{target} + w_2 R_{efficiency} + \\dots", characteristics: "The standard approach. You assign a scalar weight to each component. Tuning these weights is often the hardest part of RL engineering.", warning: "Avoid dominating penalties. If a penalty is too large compared to the goal reward, the agent may learn to freeze and do nothing to avoid the penalty." },
+                    { name: "Component Normalization", formula: "R_{norm} = \\frac{R - R_{min}}{R_{max} - R_{min}}", characteristics: "Best Practice. Always try to keep individual reward components scaled roughly between -1 and 1 before applying weights. This keeps neural network gradients stable.", warning: "" },
+                    { name: "Potential-Based Shaping", formula: "F(s, a, s') = \\gamma \\Phi(s') - \\Phi(s)", characteristics: "Advanced. A mathematically proven way to add dense 'hints' (like distance to goal) without changing the optimal policy. Φ(s) is a potential function evaluating the 'goodness' of a state.", warning: "" }
+                ],
+                chartConfig: {
+                    xLabel: "State / Action Value (x)",
+                    xMin: -5, xMax: 5,
+                    datasets: [
+                        { label: 'Target Reward (Gaussian)', fn: (x) => Math.exp(-Math.pow(x, 2)), color: '#10b981' },
+                        { label: 'Action Penalty (L2, c=0.05)', fn: (x) => -0.05 * Math.pow(x, 2), color: '#ef4444' },
+                        { label: 'Combined Total', fn: (x) => Math.exp(-Math.pow(x, 2)) - 0.05 * Math.pow(x, 2), color: '#0ea5e9' }
+                    ]
+                }
+            }
+        };
+
+        const navCategories = [
+            { id: 'target', label: '1. Targets' },
+            { id: 'bounds', label: '2. Bounds' },
+            { id: 'actions', label: '3. Actions' },
+            { id: 'speed', label: '4. Speed' },
+            { id: 'multi', label: '5. Multi-Objective' }
+        ];
+
+        let currentChart = null;
+        let currentState = 'target';
+
+        function initApp() {
+            buildNavigation();
+            loadCategory('target');
+        }
+
+        function buildNavigation() {
+            const nav = document.getElementById('navigation');
+            nav.innerHTML = '';
+            navCategories.forEach(cat => {
+                const btn = document.createElement('button');
+                btn.className = `nav-btn px-4 py-3 rounded-xl text-left font-medium text-sm md:text-base whitespace-nowrap md:whitespace-normal transition-colors flex-1 md:flex-none`;
+                btn.innerText = cat.label;
+                btn.onclick = () => loadCategory(cat.id);
+                btn.id = `nav-${cat.id}`;
+                nav.appendChild(btn);
+            });
+        }
+
+        function loadCategory(id) {
+            currentState = id;
+            const data = contentData[id];
+
+            document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`nav-${id}`).classList.add('active');
+
+            document.getElementById('section-title').innerText = data.title;
+            document.getElementById('section-intro').innerText = data.intro;
+            document.getElementById('chart-context').innerText = data.chartContext;
+
+            renderCards(data.cards);
+            renderChart(data.chartConfig);
+
+            setTimeout(() => {
+                renderMathInElement(document.body, {
+                    delimiters: [
+                        { left: '$$', right: '$$', display: true },
+                        { left: '$', right: '$', display: false },
+                        { left: '\\(', right: '\\)', display: false },
+                        { left: '\\[', right: '\\]', display: true }
+                    ],
+                    throwOnError: false
+                });
+            }, 50);
+        }
+
+        function renderCards(cards) {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+
+            cards.forEach(card => {
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col hover:shadow-md transition-shadow';
+
+                let warningHtml = '';
+                if (card.warning) {
+                    warningHtml = `
+                        <div class="mt-4 bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-lg">
+                            <p class="text-sm text-amber-800"><strong class="font-semibold text-amber-900">Warning:</strong> ${card.warning}</p>
+                        </div>
+                    `;
+                }
+
+                cardDiv.innerHTML = `
+                    <h4 class="text-lg font-bold text-slate-800 mb-3">${card.name}</h4>
+                    <div class="bg-slate-50 py-3 px-4 rounded-lg mb-4 formula-box border border-slate-200 text-center">
+                        $$${card.formula}$$
+                    </div>
+                    <p class="text-slate-600 text-sm flex-grow leading-relaxed">${card.characteristics}</p>
+                    ${warningHtml}
+                `;
+                container.appendChild(cardDiv);
+            });
+        }
+
+        function renderChart(config) {
+            const ctx = document.getElementById('rewardChart').getContext('2d');
+
+            if (currentChart) {
+                currentChart.destroy();
+            }
+
+            const step = (config.xMax - config.xMin) / 50;
+            const labels = [];
+            for (let x = config.xMin; x <= config.xMax; x += step) {
+                labels.push(x.toFixed(1));
+            }
+
+            const datasets = config.datasets.map(ds => {
+                const dataPoints = [];
+                for (let x = config.xMin; x <= config.xMax; x += step) {
+                    dataPoints.push(ds.fn(x));
+                }
+                return {
+                    label: ds.label,
+                    data: dataPoints,
+                    borderColor: ds.color,
+                    backgroundColor: ds.color + '20',
+                    borderWidth: 3,
+                    pointRadius: 0,
+                    pointHitRadius: 10,
+                    fill: false,
+                    tension: 0.3
+                };
+            });
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: datasets
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                font: { family: "'Inter', sans-serif", size: 13 }
+                            }
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(15, 23, 42, 0.9)',
+                            titleFont: { family: "'Inter', sans-serif", size: 13 },
+                            bodyFont: { family: "'Inter', sans-serif", size: 13 },
+                            padding: 12,
+                            cornerRadius: 8,
+                            displayColors: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: config.xLabel,
+                                font: { family: "'Inter', sans-serif", weight: '600' }
+                            },
+                            grid: { color: '#f1f5f9' },
+                            ticks: { maxTicksLimit: 11 }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Reward / Penalty',
+                                font: { family: "'Inter', sans-serif", weight: '600' }
+                            },
+                            grid: { color: '#f1f5f9' }
+                        }
+                    }
+                }
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+
+</html>

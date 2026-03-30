@@ -1,0 +1,53 @@
+<!-- ═══════════════════════════════════════════════════════════
+     SECTION 3 — Useful Notes (Widget Grid)
+     ─────────────────────────────────────────────────────────
+     HOW TO ADD A NEW WIDGET:
+     1. Save your HTML/CSS/JS file in sections/section_3/
+        (e.g.  sections/section_3/my_new_widget.html)
+     2. Copy one <div class="widget-card"> block below.
+     3. Update the widget-name and change the iframe src path.
+     That's it — the iframe isolates the widget's CSS and JS
+     so it can never break the main page.
+═══════════════════════════════════════════════════════════ -->
+
+<h1 class="section-title">Useful Notes</h1>
+<p class="section-desc">Interactive reference widgets — each runs in an isolated sandbox.</p>
+
+<div class="notes-intro">
+  💡 <strong>How to add a widget:</strong>
+  Drop your self-contained HTML file into <code>sections/section_3/</code>,
+  then copy one of the widget-card blocks below and point the <code>iframe src</code> at your file.
+  The iframe isolation ensures your widget's CSS &amp; JS won't affect the rest of the page.
+</div>
+
+<div class="widgets-grid">
+
+  <!-- ── WIDGET CARD ── copy this block to add a new widget ── -->
+  <div class="widget-card">
+    <div class="widget-titlebar">
+      <div class="widget-titlebar-dots">
+        <span class="widget-dot red"></span>
+        <span class="widget-dot yellow"></span>
+        <span class="widget-dot green"></span>
+      </div>
+      <span class="widget-name">RL Reward Design Explorer</span>
+      <a href="sections/section_3/reward_functions.html" target="_blank"
+         style="font-size:0.75rem; color: var(--text-muted); text-decoration:none;"
+         title="Open in new tab">↗</a>
+    </div>
+    <div class="widget-body">
+      <!-- WIDGET SOURCE: sections/section_3/reward_functions.html -->
+      <iframe
+        src="sections/section_3/reward_functions.html"
+        title="RL Reward Design Explorer"
+        loading="lazy"
+        sandbox="allow-scripts allow-same-origin">
+      </iframe>
+    </div>
+  </div>
+  <!-- ── END WIDGET CARD ─────────────────────────────────────── -->
+
+  <!-- ADD NEW WIDGET HERE — copy the widget-card block above
+       and update widget-name & iframe src                       -->
+
+</div><!-- /.widgets-grid -->
