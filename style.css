@@ -254,3 +254,11 @@ section, .stage, .vid, .tl li { scroll-margin-top: 4.5rem; }
   background: transparent; color: var(--fg); border: 1px solid var(--line); cursor: pointer; }
 .vclose:hover { color: var(--cyan); border-color: var(--cyan); }
 .vmodal[hidden] { display: none; }
+
+/* phone: keep nav to one swipeable row so it doesn't cover content */
+@media (max-width: 700px) {
+  .nav { flex-wrap: nowrap; overflow-x: auto; gap: 1rem; padding: .6rem 1rem; scrollbar-width: none; }
+  .nav::-webkit-scrollbar { display: none; }
+  .nav a, .nav .logo { flex: 0 0 auto; white-space: nowrap; }
+  .nav .logo { margin-right: 0; }
+}
