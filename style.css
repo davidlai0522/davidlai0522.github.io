@@ -261,4 +261,9 @@ section, .stage, .vid, .tl li { scroll-margin-top: 4.5rem; }
   .nav::-webkit-scrollbar { display: none; }
   .nav a, .nav .logo { flex: 0 0 auto; white-space: nowrap; }
   .nav .logo { margin-right: 0; }
+  body { font-size: 15px; }
+  h2 { font-size: 1.2rem; letter-spacing: .05em; }
+  section { padding: 2.5rem 0; }
+  .card { padding: .8rem 1rem; }
+  .pubimg { margin: -.8rem -1rem .8rem; }
 }

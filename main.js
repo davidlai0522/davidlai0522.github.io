@@ -48,7 +48,7 @@ document.getElementById("yr").textContent = new Date().getFullYear();
       });
       io.unobserve(e.target);
     }
-  }, { threshold: 0.15 });
+  }, { threshold: 0, rootMargin: "0px 0px -10% 0px" });
   document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
 })();
 
