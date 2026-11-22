@@ -1,51 +1,248 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>David Lai | Robotics Research</title>
-  <meta name="description" content="Personal portfolio of David Lai — PhD student and Robotics Research Engineer specialising in patient-transfer robots, VLA models, and embodied AI.">
-
-  <!-- Design System -->
-  <link rel="stylesheet" href="css/style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>David Lai // Robotics Software Engineer</title>
+  <meta name="description" content="David Lai: Robotics Specialist at Schaeffler and part-time PhD student in Robotics at NTU. Play with interactive robotics demos.">
+  <meta property="og:title" content="David Lai // Robotics Software Engineer">
+  <meta property="og:description" content="Robotics Specialist at Schaeffler and part-time PhD student at NTU. Play with interactive robotics demos.">
+  <meta property="og:image" content="https://davidlai0522.github.io/img/david.jpeg">
+  <meta property="og:url" content="https://davidlai0522.github.io/">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%2305080d'/><text x='5' y='22' font-family='monospace' font-size='15' fill='%2300e5ff'>DL</text></svg>">
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
+  <canvas id="bg" aria-hidden="true"></canvas>
+  <div class="scanlines" aria-hidden="true"></div>
 
-  <!-- ── HEADER ─────────────────────────────────────────────── -->
-  <header id="site-header">
-    <div class="header-inner">
-      <h1 class="header-title">David <span>Lai</span></h1>
-      <p class="header-subtitle">Robotics Research Engineer &amp; PhD Student</p>
-      <div class="header-badges">
-        <span class="badge">🤖 Patient Transfer Robots</span>
-        <span class="badge">🧠 Embodied AI</span>
-        <span class="badge">👁️ VLA Models</span>
-        <span class="badge">🦾 ROS2 / MoveIt2</span>
-      </div>
+  <nav class="nav">
+    <span class="logo">&gt;_ DL</span>
+    <a href="#about">about</a>
+    <a href="#vision">vision</a>
+    <a href="#work">work</a>
+    <a href="#projects">projects</a>
+    <a href="#research">research</a>
+    <a href="#timeline">timeline</a>
+    <a href="#skills">skills</a>
+    <a href="#contact">contact</a>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-text">
+      <div class="avatar"><span><img src="img/david.jpeg" alt="David Lai in the robotics lab"></span></div>
+      <p class="tag">SYSTEM ONLINE <span class="blink">&#9608;</span></p>
+      <h1>David Lai</h1>
+      <p class="typed"><span id="typed"></span><span class="blink">|</span></p>
+      <p class="sub">Robotics software engineer &middot; Part-time PhD student, NTU &middot; I make machines move.</p>
+      <a class="btn" href="#work">play with my robots</a>
+      <a class="btn ghost" href="#contact">contact</a>
+    </div>
+    <div class="hero-arm">
+      <canvas id="arm" width="560" height="440"></canvas>
+      <p class="hint">a robot arm sketching my portrait (inverse kinematics + pen-plotter path). Click to speed it up.</p>
     </div>
   </header>
 
-  <!-- ── STICKY NAV ─────────────────────────────────────────── -->
-  <nav id="site-nav" aria-label="Portfolio sections">
-    <!-- Tabs are injected by app.js from SECTIONS in config.js -->
-    <div class="nav-inner" id="nav-tabs" role="tablist"></div>
-  </nav>
+  <main>
+    <section id="about" class="reveal">
+      <h2><span>00</span> ABOUT</h2>
+      <p>I'm David, a Robotics Specialist at Schaeffler in Singapore and a part-time PhD student in Robotics at Nanyang Technological University (NTU). I build the software that lets robots see, grasp, move and learn: perception, grasping with parallel grippers and dexterous hands, mobile robots, humanoids and robot learning.</p>
+      <p>My research focuses on human digital twins, physical human-robot interaction and machine intelligence: helping robots understand people and work safely alongside them. Before that I earned a Bachelor's in Mechanical Engineering at NTU with Highest Distinction, specialising in robotics and mechatronics.</p>
 
-  <!-- ── MAIN CONTENT MOUNT ─────────────────────────────────── -->
-  <main id="content-mount" aria-live="polite">
-    <!-- Section HTML is fetched and injected here by app.js -->
+    </section>
+
+    <section id="vision" class="reveal">
+      <h2><span>01</span> VISION &amp; MISSION</h2>
+      <blockquote class="dream">"My dream is to unleash the potential of robotics technology to enhance human life."</blockquote>
+      <div class="cards">
+        <div class="card"><h3>Vision</h3><p>A world where robots are capable, trusted partners in everyday life: helping people at home, at work and in places that are hard or dangerous for humans.</p></div>
+        <div class="card"><h3>Mission</h3><p>Turn robotics research into reliable, general and safe software: robots that perceive, understand instructions, plan, and act well in the real world.</p></div>
+      </div>
+    </section>
+
+    <section id="work" class="reveal">
+      <h2><span>02</span> WHAT I DO AT WORK</h2>
+      <p>Everything here is part of my job. Pick a topic, then a demo. <span class="muted">Simplified public versions; real projects are under NDA.</span></p>
+      <div class="topics" id="topics" role="tablist"></div>
+      <p class="topic-sum" id="topicsum"></p>
+      <div class="cards-row" id="cardsrow"></div>
+
+      <div class="stage">
+        <div class="stage-head">
+          <h3 id="stitle"></h3>
+          <p id="sinstr"></p>
+        </div>
+
+        <div class="panel" data-panel="percep" hidden>
+          <div class="controls" id="perctl"></div>
+          <canvas id="perc" width="960" height="420"></canvas>
+        </div>
+
+        <div class="panel" data-panel="game" hidden>
+          <div class="subtabs">
+            <button data-game="grasp" class="on">grasp</button>
+            <button data-game="balance">balance</button>
+            <button data-game="lidar">lidar</button>
+            <button data-game="reach">reach</button>
+            <button data-game="train">train</button>
+          </div>
+          <div class="controls" id="acadctl"></div>
+          <canvas id="acadc" width="960" height="420" tabindex="0"></canvas>
+        </div>
+
+        <div class="panel" data-panel="robot" hidden>
+          <div class="subtabs">
+            <button data-robot="amr" class="on">AMR</button>
+            <button data-robot="dual">dual-arm</button>
+            <button data-robot="humanoid">humanoid</button>
+          </div>
+          <canvas id="rob" width="960" height="420"></canvas>
+        </div>
+
+        <div class="panel" data-panel="lab" hidden>
+          <div class="subtabs">
+            <button data-lab="control" class="on">control</button>
+            <button data-lab="rl">rl</button>
+            <button data-lab="vla">vla</button>
+          </div>
+          <div class="controls" id="labctl"></div>
+          <canvas id="labc" width="960" height="420"></canvas>
+        </div>
+
+        <div class="panel" data-panel="astar" hidden>
+          <div class="controls">
+            <button data-algo="astar" class="on">A*</button>
+            <button data-algo="dijkstra">Dijkstra</button>
+            <button data-algo="greedy">Greedy</button>
+            <button data-algo="rrt">RRT</button>
+            <button id="race">race all 4</button>
+            <button id="drive">&#9654; drive robot</button>
+            <button id="rand">random map</button>
+            <button id="clear">clear</button>
+            <label>speed <input type="range" id="speed" min="1" max="40" value="6"></label>
+          </div>
+          <canvas id="grid" width="960" height="480"></canvas>
+        </div>
+
+        <details class="how">
+          <summary>How it works</summary>
+          <p id="show"></p>
+        </details>
+      </div>
+    </section>
+
+    <section id="projects" class="reveal">
+      <h2><span>03</span> PROJECTS</h2>
+      <h3 class="subhead">Public work highlights</h3>
+      <div class="cards">
+        <div class="card pub">
+          <figure class="pubimg"><img src="img/gravikart.jpg" alt="GraviKart robotic push trolley in a factory hall" loading="lazy" style="object-position:center 70%"><figcaption>Image: Schaeffler</figcaption></figure>
+          <small>Schaeffler &middot; SHARE@NTU</small>
+          <h3>GraviKart</h3>
+          <p>A robotic push trolley for factory floors. It navigates with cameras, avoids obstacles, reacts to touch and speech, and shows its intent with LED lights. Innovation in Hardware Award at ICSR 2021 and a Red Dot Design Concept award in 2025. I worked on its electrical system.</p>
+          <a href="https://schaeffler-tomorrow.com/en/article/an-idea-that-literally-moves">Read more &rarr;</a>
+        </div>
+        <div class="card pub">
+          <figure class="pubimg"><img src="img/dex.png" alt="Close-up of the DEX autonomous mobile robot" loading="lazy" style="object-position:center"><figcaption>Image: Schaeffler / Red Dot</figcaption></figure>
+          <small>Schaeffler</small>
+          <h3>DEX</h3>
+          <p>"Dual EXtendable": an autonomous mobile robot that rolls on wheels and, when it meets stairs or rough ground, walks on four legs. It responds to hand gestures and voice. Red Dot: Best of the Best 2022.</p>
+          <a href="https://www.red-dot.org/project/dual-extendable-dex-the-autonomous-mobile-robot-amr-60116">Read more &rarr;</a>
+        </div>
+        <div class="card pub">
+          <figure class="pubimg"><img src="img/news-sedaily.png" alt="Collage of NTU industry lab photos from the Seoul Economic Daily article" loading="lazy" style="object-position:center top"><figcaption>Image: Seoul Economic Daily</figcaption></figure>
+          <small>In the news &middot; Seoul Economic Daily &middot; Jun 2026</small>
+          <h3>Featured: NTU's industry labs</h3>
+          <p>Interviewed for a Korean news feature on NTU's industry-academia labs, representing the Schaeffler-NTU joint lab: "even interns get the opportunity to develop and test robots actually used by companies."</p>
+          <a href="https://en.sedaily.com/society/2026/06/18/at-ntu-even-undergraduates-join-self-driving-research-as">Read the article &rarr;</a>
+        </div>
+      </div>
+
+      <h3 class="subhead">Personal projects</h3>
+      <div class="vids">
+        <div class="vid" id="p-dream">
+          <button class="vthumb" data-yt="HSHSuAT0FLc" aria-label="play video: DREAM" style="background-image:url('https://i.ytimg.com/vi/HSHSuAT0FLc/hqdefault.jpg')"><span>&#9654;</span></button>
+          <small>2025</small><h4>DREAM</h4><p>Python package combining PDDL task planning with reinforcement learning for robot arm manipulation. Course project, CS5446 AI Planning and Decision Making.</p>
+        </div>
+        <div class="vid" id="p-bus">
+          <button class="vthumb" data-yt="Iq8RqGBKUC0" aria-label="play video: WhenIs199Coming" style="background-image:url('https://i.ytimg.com/vi/Iq8RqGBKUC0/hqdefault.jpg')"><span>&#9654;</span></button>
+          <small>2024</small><h4>WhenIs199Coming</h4><p>Telegram bot that alerts you before NTU's bus 199 arrives, built on Singapore's LTA Bus Arrival API.</p>
+        </div>
+        <div class="vid" id="p-seamless">
+          <button class="vthumb" data-yt="QTWVvpMnZnw" aria-label="play video: Seamless navigation" style="background-image:url('https://i.ytimg.com/vi/QTWVvpMnZnw/hqdefault.jpg')"><span>&#9654;</span></button>
+          <div class="vpick">
+            <button data-pick="QTWVvpMnZnw" class="on" title="indoor-outdoor test 1">in&harr;out 1</button><button data-pick="ygHMOiHPYWc" title="indoor-outdoor test 2">in&harr;out 2</button>
+            <button data-pick="aL9jMV2L_uA" title="indoor-indoor test 1">in&harr;in 1</button><button data-pick="zbFYW85P1F8" title="indoor-indoor test 2">in&harr;in 2</button>
+          </div>
+          <small>2023</small><h4>Seamless navigation</h4><p>Deployment tests of a robot navigation system that moves seamlessly between indoor and outdoor areas, and between indoor spaces.</p>
+        </div>
+        <div class="vid" id="p-lostfound">
+          <button class="vthumb" data-yt="VcP5UoLhi3c" aria-label="play video: Lost and Found" style="background-image:url('https://i.ytimg.com/vi/VcP5UoLhi3c/hqdefault.jpg')"><span>&#9654;</span></button>
+          <small>2021</small><h4>Lost and Found</h4><p>Python vision program that finds your lost items, like a wallet on a messy table.</p>
+        </div>
+        <div class="vid" id="p-bigfuture">
+          <button class="vthumb" data-yt="xz43ToqCWGY" aria-label="play video: BigFuture Kindergarten" style="background-image:url('https://i.ytimg.com/vi/xz43ToqCWGY/hqdefault.jpg')"><span>&#9654;</span></button>
+          <small>2021</small><h4>BigFuture Kindergarten</h4><p>QR code detector in Python that helps you learn the pronunciation of a new language.</p>
+        </div>
+        <div class="vid" id="p-pandemic">
+          <button class="vthumb" data-yt="nxQiVB0dzGE" aria-label="play video: Pandemic Survival Pack" style="background-image:url('https://i.ytimg.com/vi/nxQiVB0dzGE/hqdefault.jpg')"><span>&#9654;</span></button>
+          <small>2021</small><h4>Pandemic Survival Pack</h4><p>Python hand-gesture games: play rock-paper-scissors alone, plus a cheeky gesture detector.</p>
+        </div>
+      </div>
+      <p><a href="https://www.youtube.com/@davidlai7612">More on my YouTube channel &rarr;</a></p>
+    </section>
+
+    <section id="research" class="reveal">
+      <h2><span>04</span> RESEARCH</h2>
+      <div class="chips">
+        <span>manipulation</span><span>navigation</span><span>VLA</span><span>reinforcement learning</span><span>grasping</span><span>control theory</span><span>simulation (MuJoCo)</span>
+      </div>
+      <div class="cards">
+        <div class="card"><h3>Human digital twin</h3><p>Digital models of people (their motion, behaviour and physical state) so robots can predict and adapt to the humans they work with.</p></div>
+        <div class="card"><h3>Physical human-robot interaction</h3><p>Robots that work hands-on with people: sharing loads, guiding motion and reacting safely to contact forces.</p></div>
+        <div class="card"><h3>Machine intelligence</h3><p>Giving robots the ability to perceive, learn and decide, so they can handle new situations instead of only scripted ones.</p></div>
+      </div>
+    </section>
+
+    <section id="timeline" class="reveal">
+      <h2><span>05</span> TIMELINE</h2>
+      <ol class="tl">
+        <li id="tl-phd"><b>Aug 2025 &ndash; now</b><span>Part-time PhD in Robotics, Nanyang Technological University (NTU)</span><small>Human digital twin, physical human-robot interaction, machine intelligence.</small></li>
+        <li id="tl-specialist"><b>Jul 2023 &ndash; now</b><span>Robotics Specialist, Schaeffler, Singapore</span><small>Grasping, manipulation, mobile robots, humanoids and robot learning. Projects under NDA.</small></li>
+        <li id="tl-bsc"><b>2019 &ndash; 2023</b><span>Bachelor's degree in Mechanical Engineering, NTU</span><small>Highest Distinction (Dean's List). Robotics and Mechatronics specialisation.</small></li>
+        <li id="tl-intern"><b>Jun &ndash; Dec 2021</b><span>Electrical Engineer Intern, Schaeffler, Singapore</span><small>Electrical work for a smart powered cart and an AMR; ROS, C++/Python, robot kinematics, physics simulation.</small></li>
+        <li id="tl-ureca"><b>Aug 2020 &ndash; Jul 2021</b><span>Undergraduate Researcher (URECA), NTU</span><small>Solar-powered smart planting system on Raspberry Pi with IoT data collection.</small></li>
+      </ol>
+    </section>
+
+    <section id="skills" class="reveal">
+      <h2><span>06</span> SKILLS</h2>
+      <p class="muted">No self-ratings: hover or tap a skill to see where I have used it, then jump straight to the proof.</p>
+      <div class="proofmap">
+        <div id="skillchips"></div>
+        <aside class="proof" id="proof" aria-live="polite"><p class="muted">Hover or tap a skill.</p></aside>
+      </div>
+    </section>
+
+    <section id="contact" class="reveal">
+      <h2><span>07</span> CONTACT</h2>
+      <p>
+        <a href="mailto:davidlaienhan5906@gmail.com">davidlaienhan5906@gmail.com</a> &middot;
+        <a href="https://github.com/davidlai0522">GitHub</a> &middot;
+        <a href="https://www.linkedin.com/in/david-lai-1808a11a3/">LinkedIn</a>
+      </p>
+    </section>
   </main>
 
-  <!-- ── FOOTER ─────────────────────────────────────────────── -->
-  <footer id="site-footer">
-    <p>Built with ❤️ by David Lai &middot; <a href="https://github.com/davidlai" target="_blank">GitHub</a></p>
-  </footer>
-
-  <!-- Section registry & router (order matters) -->
-  <script src="js/config.js"></script>
-  <script src="js/app.js"></script>
-
+  <footer>&copy; <span id="yr"></span> David Lai &middot; built with plain HTML, CSS and canvas</footer>
+  <div class="vmodal" id="vmodal" hidden role="dialog" aria-modal="true" aria-label="project video">
+    <div class="vbox">
+      <button class="vclose" aria-label="close video">&times;</button>
+      <div class="vframe"></div>
+      <div class="vinfo"><small></small><h3></h3><div class="vpick-slot"></div><p></p></div>
+    </div>
+  </div>
+  <script src="main.js"></script>
 </body>
 </html>
